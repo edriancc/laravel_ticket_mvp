@@ -17,6 +17,19 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()?->can('view_all_projects')) {
+            return $query;
+        }
+
+        return $query->whereHas('users', function ($q) {
+            $q->where('users.id', auth()->id());
+        });
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

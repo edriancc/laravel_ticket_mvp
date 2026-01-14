@@ -21,7 +21,7 @@ class TicketResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (auth()->user()?->hasRole('super_admin')) {
+        if (auth()->user()?->can('view_all_tickets')) {
             return $query;
         }
 
@@ -31,7 +31,7 @@ class TicketResource extends Resource
             });
         });
 
-        if (! auth()->user()?->hasRole('super_admin')) {
+        if (! auth()->user()?->can('view_all_tickets')) {
             $query->where('is_active', true);
         }
 
@@ -70,12 +70,16 @@ class TicketResource extends Resource
                     ->relationship('responsible', 'name')
                     ->searchable()
                     ->preload(),
+                Forms\Components\Placeholder::make('assigned_to_avatar')
+                    ->label('Current Assignee Avatar')
+                    ->content(fn ($record) => $record?->responsible?->getFilamentAvatarUrl() ? new \Illuminate\Support\HtmlString('<img src="' . $record->responsible->getFilamentAvatarUrl() . '" class="w-10 h-10 rounded-full object-cover">') : 'No avatar')
+                    ->visible(fn ($record) => $record?->responsible),
                 Forms\Components\DatePicker::make('due_date')
                     ->native(false),
                 Forms\Components\Toggle::make('is_active')
                     ->required()
                     ->default(true)
-                    ->visible(fn () => auth()->user()?->hasRole('super_admin')),
+                    ->visible(fn () => auth()->user()?->can('view_all_tickets')),
             ]);
     }
 

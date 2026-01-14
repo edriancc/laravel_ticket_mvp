@@ -6,6 +6,11 @@ use Filament\Widgets\ChartWidget;
 
 class UsersByRoleChart extends ChartWidget
 {
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('widget_UsersByRoleChart') ?? false;
+    }
+
     protected static ?int $sort = 3;
 
     protected int | string | array $columnSpan = [

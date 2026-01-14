@@ -6,6 +6,11 @@ use Filament\Widgets\ChartWidget;
 
 class TicketsByStatusChart extends ChartWidget
 {
+    public static function canView(): bool
+    {
+        return auth()->user()?->can('widget_TicketsByStatusChart') ?? false;
+    }
+
     protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = [

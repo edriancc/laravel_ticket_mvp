@@ -21,6 +21,11 @@ class KanbanBoard extends Page implements HasForms
     protected static ?string $title = 'Project Kanban';
     protected static string $view = 'filament.pages.kanban-board';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('page_KanbanBoard') ?? false;
+    }
+
     public ?array $data = [];
 
     public function mount()
@@ -53,7 +58,7 @@ class KanbanBoard extends Page implements HasForms
 
     public function getProjects(): Collection
     {
-        if (auth()->user()->hasRole('super_admin')) {
+        if (auth()->user()->can('view_all_projects')) {
             return Project::all();
         }
         return auth()->user()->projects;
@@ -72,7 +77,7 @@ class KanbanBoard extends Page implements HasForms
                 ->whereIn('project_id', $selectedProjectIds);
             
              // Apply access control for non-admins (active only)
-            if (! auth()->user()->hasRole('super_admin')) {
+            if (! auth()->user()->can('view_all_tickets')) {
                  $query->where('is_active', true);
             }
             
@@ -92,7 +97,7 @@ class KanbanBoard extends Page implements HasForms
         // Authorization check
         if (! $ticket) return;
         
-        if (! auth()->user()->hasRole('super_admin')) {
+        if (! auth()->user()->can('view_all_tickets')) {
             // Check if user belongs to project
             if (! auth()->user()->projects->contains($ticket->project_id)) {
                  return;

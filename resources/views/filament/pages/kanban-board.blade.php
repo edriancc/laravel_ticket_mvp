@@ -66,9 +66,13 @@
                              <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                                 <div class="flex items-center gap-2">
                                     @if($ticket->responsible)
-                                        <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold" title="{{ $ticket->responsible->name }}">
-                                            {{ Str::substr($ticket->responsible->name, 0, 1) }}
-                                        </div>
+                                        @if($ticket->responsible->getFilamentAvatarUrl())
+                                            <img src="{{ $ticket->responsible->getFilamentAvatarUrl() }}" alt="{{ $ticket->responsible->name }}" class="w-6 h-6 rounded-full object-cover">
+                                        @else
+                                            <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold" title="{{ $ticket->responsible->name }}">
+                                                {{ Str::substr($ticket->responsible->name, 0, 1) }}
+                                            </div>
+                                        @endif
                                         <span class="text-xs text-gray-600 dark:text-gray-400">{{ $ticket->responsible->name }}</span>
                                     @else
                                         <span class="text-xs text-gray-400 italic">Unassigned</span>
