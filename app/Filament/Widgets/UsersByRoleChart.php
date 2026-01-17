@@ -50,6 +50,37 @@ class UsersByRoleChart extends ChartWidget
         ];
     }
 
+    protected function getOptions(): \Filament\Support\RawJs
+    {
+        $roles = \Spatie\Permission\Models\Role::all()->pluck('id', 'name');
+        
+        // Manually build JS object with single quotes to avoid conflict with HTML attributes (double quotes)
+        $jsObject = '{';
+        foreach ($roles as $name => $id) {
+            $jsObject .= "'{$name}': '{$id}',";
+        }
+        $jsObject .= '}';
+
+        return \Filament\Support\RawJs::make(<<<JS
+            {
+                onClick: (event, elements, chart) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const label = chart.data.labels[index];
+                        const roleMap = $jsObject;
+                        const roleId = roleMap[label];
+
+                        if (roleId) {
+                            const url = new URL('/admin/users', window.location.origin);
+                            url.searchParams.set('tableFilters[roles][value]', roleId);
+                            window.location.href = url.toString();
+                        }
+                    }
+                }
+            }
+        JS);
+    }
+
     protected function getType(): string
     {
         return 'doughnut';

@@ -138,7 +138,24 @@ class TicketResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(\App\Enums\TicketStatus::class)
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('priority')
+                    ->options(\App\Enums\TicketPriority::class)
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('type')
+                    ->options(\App\Enums\TicketType::class)
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('project')
+                    ->relationship('project', 'name')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('assigned_to')
+                    ->relationship('responsible', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Assignee'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

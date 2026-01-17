@@ -42,6 +42,32 @@ class TicketsByStatusChart extends ChartWidget
         ];
     }
 
+    protected function getOptions(): \Filament\Support\RawJs
+    {
+        return \Filament\Support\RawJs::make(<<<JS
+            {
+                onClick: (event, elements, chart) => {
+                    if (! elements.length) return;
+
+                    const index = elements[0].index;
+                    const label = chart.data.labels[index];
+                    const statusMap = {
+                        'To Do': 'todo',
+                        'In Progress': 'in_progress',
+                        'Done': 'done'
+                    };
+                    const status = statusMap[label];
+
+                    if (status) {
+                        const url = new URL('/admin/tickets', window.location.origin);
+                        url.searchParams.set('tableFilters[status][values][0]', status);
+                        window.location.href = url.toString();
+                    }
+                },
+            }
+        JS);
+    }
+
     protected function getType(): string
     {
         return 'doughnut';
