@@ -11,7 +11,7 @@ class UsersByRoleChart extends ChartWidget
         return auth()->user()?->can('widget_UsersByRoleChart') ?? false;
     }
 
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = [
         'md' => 1,

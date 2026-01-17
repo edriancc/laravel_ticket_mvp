@@ -7,6 +7,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StatsOverview extends BaseWidget
 {
+    protected static ?int $sort = 1;
+
     public static function canView(): bool
     {
         return auth()->user()?->can('widget_StatsOverview') ?? false;

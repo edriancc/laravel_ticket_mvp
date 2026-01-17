@@ -45,7 +45,16 @@ class TicketResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('project_id')
-                    ->relationship('project', 'name')
+                    ->relationship('project', 'name', modifyQueryUsing: function ($query) {
+                        if (! auth()->user()->hasRole('super_admin')) {
+                            $query->whereHas('users', function ($q) {
+                                $q->where('users.id', auth()->id());
+                            });
+                        }
+                        return $query;
+                    })
+                    ->live()
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('assigned_to', null))
                     ->required(),
                 Forms\Components\TextInput::make('title')
                     ->required()
@@ -67,7 +76,15 @@ class TicketResource extends Resource
                     ->required()
                     ->default(\App\Enums\TicketType::Task),
                 Forms\Components\Select::make('assigned_to')
-                    ->relationship('responsible', 'name')
+                    ->relationship('responsible', 'name', modifyQueryUsing: function (Builder $query, Forms\Get $get) {
+                        $projectId = $get('project_id');
+                        if ($projectId) {
+                            return $query->whereHas('projects', function ($q) use ($projectId) {
+                                $q->where('projects.id', $projectId);
+                            });
+                        }
+                        return $query;
+                    })
                     ->searchable()
                     ->preload(),
                 Forms\Components\Placeholder::make('assigned_to_avatar')
